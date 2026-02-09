@@ -12,7 +12,7 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #000;
+  background: url('./assets/Watermark.png') center/cover no-repeat, radial-gradient(113.14% 60.22%, #290F0D 0%, #910101 0%, #5E0000 130%);
   position: relative;
 }
 

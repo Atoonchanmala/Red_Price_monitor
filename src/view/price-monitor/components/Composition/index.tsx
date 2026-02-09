@@ -18,30 +18,31 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
             position="relative"
             flex={1}
             minW={0}
-            w="auto"
             h="100%"
             bg="#FFF"
-            borderRadius={{ base: "10px", sm: "12px", md: "20px", xl: "28px" }}
-            border={{ base: "2px solid rgba(236, 185, 30, 0.95)", md: "3px solid rgba(236, 185, 30, 0.95)", xl: "4px solid rgba(236, 185, 30, 0.95)" }}
-            px={{ base: 2, sm: 3, md: 6, xl: 8 }}
-            py={{ base: 2, sm: 3, md: 6, xl: 6 }}
+            borderRadius="28px"
+            border="4px solid rgba(236, 185, 30, 0.95)"
+            px={8}
+            py={8}
             overflow="visible"
         >
             <Image
                 src={jewelly}
                 alt="ອຸປະກອນຄຳ"
                 position="absolute"
-                top={{ base: "-15px", sm: "-20px", md: "-50px", xl: "-70px" }}
-                left={{ base: "2px", md: "3px", xl: "5px" }}
-                width={{ base: "45px", sm: "60px", md: "130px", xl: "190px" }}
+                top="-70px"
+                left="30px"
+                width="190px"
                 filter="drop-shadow(0 16px 24px rgba(0,0,0,0.25))"
                 zIndex={2}
             />
 
-            <Flex direction="column" position="relative" zIndex={1} gap={{ base: 1, sm: 1.5, md: 3, xl: 5 }} h="100%">
+            <Box
+            />
+            <Flex direction="column" position="relative" zIndex={1} gap={5} h="100%">
                 <Text
                     textAlign="center"
-                    fontSize={{ base: "12px", sm: "14px", md: "28px", lg: "32px", xl: "36px" }}
+                    fontSize="48px"
                     fontWeight="700"
                     color="#2B0F00"
                     flexShrink={0}
@@ -49,26 +50,26 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
                     ຄຳຮູບປະພັນ
                 </Text>
 
-                <Flex justify="center" gap={{ base: 0.5, md: 1, xl: 1 }} flexShrink={0} ml={{ base: 5, sm: 6, md: 10 }}>
+                <Flex justify="center" gap={1} ml={38} flexShrink={0}>
                     <Box
-                        px={{ base: 1, sm: 1.5, md: 3, xl: 4 }}
-                        py={{ base: 0.5, sm: 0.5, md: 1.5, xl: 2 }}
+                        px={4}
+                        py={2}
                         bg="linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%)"
                         color="white"
                         minW="55%"
-                        fontSize={{ base: "10px", sm: "12px", md: "20px", lg: "22px", xl: "30px" }}
+                        fontSize="32px"
                         fontWeight="700"
                         textAlign="center"
                     >
                         ລາຄາຂາຍ
                     </Box>
                     <Box
-                        px={{ base: 1, sm: 1.5, md: 3, xl: 4 }}
-                        py={{ base: 0.5, sm: 0.5, md: 1.5, xl: 2 }}
+                        px={4}
+                        py={2}
                         minW="45%"
                         bg="linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%)"
                         color="white"
-                        fontSize={{ base: "10px", sm: "12px", md: "20px", lg: "22px", xl: "30px" }}
+                        fontSize="32px"
                         fontWeight="700"
                         textAlign="center"
                     >
@@ -76,32 +77,26 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
                     </Box>
                 </Flex>
 
-                <Flex direction="column" 
-                gap={{ base: 0.5, sm: 1, md: 2, xl: 2 }} 
-                flex={1} 
-                minH={0}
-                >
+                <Flex direction="column" gap={4} flex={1} minH={0}>
                     {rowsToRender.map((row) => (
                         <Flex
                             key={row.label}
                             direction="row"
-                            borderRadius={{ base: "3px 0 0 3px", sm: "4px 0 0 4px", md: "8px 0 0 8px", xl: "12px 0 0 12px" }}
+                            borderRadius="12px 0 0 12px"
                             overflow="hidden"
-                            boxShadow="0 4px 12px rgba(0,0,0,0.12)"
+                            boxShadow="0 8px 16px rgba(0,0,0,0.15)"
                             bg="linear-gradient(90deg, rgba(150, 26, 30, 0.15) 0%, rgba(188, 123, 23, 0.12) 100%)"
-                            flex={1}
-                            minH={0}
+                            flexShrink={0}
                         >
                             <Flex
                                 align="center"
                                 justify="center"
                                 bg="linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%)"
                                 color="white"
-                                w={{ base: "18%", sm: "16%", md: "13%", xl: "17%" }}
-                                flexShrink={0}
-                                px={{ base: 0.5, sm: 1, md: 2, xl: 4 }}
-                                py={{ base: 0.5, sm: 1, md: 2, xl: 3 }}
-                                fontSize={{ base: "8px", sm: "9px", md: "16px", lg: "18px", xl: "18px" }}
+                                minW="15%"
+                                px={4}
+                                py={3}
+                                fontSize="28px"
                                 fontWeight="800"
                                 textAlign="center"
                             >
@@ -117,16 +112,16 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
                                     flex="1"
                                     align="center"
                                     justify="center"
-                                    px={{ base: 0.5, sm: 1, md: 4 }}
-                                    py={{ base: 0.5, sm: 1, md: 2, xl: 3 }}
+                                    py={3}
+                                    px={4}
                                     textAlign="center"
                                 >
-                                    <Text fontSize={{ base: "9px", sm: "11px", md: "20px", lg: "22px", xl: "28px" }} fontWeight="800" color="#FFFFFF">
+                                    <Text fontSize="36px" fontWeight="800" color="#FFFFFF">
                                         {row.sell}
                                     </Text>
                                 </Flex>
                                 <Box
-                                    w={{ base: "1px", sm: "2px", md: "2px", xl: "4px" }}
+                                    w="4px"
                                     h="auto"
                                     bg="#FFF"
                                 />
@@ -134,11 +129,11 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
                                     flex="1"
                                     align="center"
                                     justify="center"
-                                    px={{ base: 0.5, sm: 1, md: 4 }}
-                                    py={{ base: 0.5, sm: 1, md: 2, xl: 3 }}
+                                    py={3}
+                                    px={4}
                                     textAlign="center"
                                 >
-                                    <Text fontSize={{ base: "9px", sm: "11px", md: "20px", lg: "22px", xl: "28px" }} fontWeight="800" color="#FFFFFF">
+                                    <Text fontSize="36px" fontWeight="800" color="#FFFFFF">
                                         {row.buy}
                                     </Text>
                                 </Flex>

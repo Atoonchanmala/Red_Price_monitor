@@ -25,5 +25,4 @@ export const fetchCurrentPriceV1 = async (): Promise<CurrentPriceV1Response> => 
   const response = await priceMonitorApi.get<CurrentPriceV1Response>(CURRENT_PRICE_V1_PATH)
   return response.data
 };
-
 export default priceMonitorApi;
