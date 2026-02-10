@@ -16,14 +16,14 @@ function App() {
         window.innerHeight / DESIGN_H
       )
       root.style.transform = `scale(${scale})`
-      root.style.marginLeft = `${(window.innerWidth - DESIGN_W * scale) / 2}px`
-      root.style.marginTop = `${(window.innerHeight - DESIGN_H * scale) / 2}px`
-    }
+      root.style.marginLeft = `${(window.innerWidth - DESIGN_W * scale) / 2}px`;
+      root.style.marginTop = `${(window.innerHeight - DESIGN_H * scale) / 2}px`;
+    };
 
-    resize()
-    window.addEventListener('resize', resize)
-    return () => window.removeEventListener('resize', resize)
-  }, [])
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
 
   return (
     <div>

@@ -147,8 +147,16 @@ export function usePriceMonitor(): PriceMonitorState & { refresh: () => Promise<
         };
     }, []);
 
+// Auto refresh every 60 seconds
     useEffect(() => {
         refresh();
+        const intervalId = setInterval(() => {
+            refresh();
+        }, 60_000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
     }, [refresh]);
     return { ...state, refresh };
 };
