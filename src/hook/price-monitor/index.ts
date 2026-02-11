@@ -39,14 +39,9 @@ export function usePriceMonitor(): PriceMonitorState & { refresh: () => Promise<
                 throw new Error('Error fetching price data from API')
             }
 
-            // ສ່ວນຕ່າງ
-            const diffSaleGoldToBar = latestV1.one_baht_sale_price - latestV1.one_baht_sale_price_gold_bar;
-            const diffBuyGoldToBar = latestV1.one_baht_buy_price - latestV1.one_baht_buy_price_gold_bar;
-
             const oneGramPrice = calculateOneGram(
-                latestV2.one_baht_sale_price,
-                diffSaleGoldToBar,
-                diffBuyGoldToBar
+                latestV1.one_baht_sale_price_gold_bar,
+                latestV1.one_baht_buy_price_gold_bar,
             )
 
             // ຄຳແທ່ງ
@@ -152,7 +147,7 @@ export function usePriceMonitor(): PriceMonitorState & { refresh: () => Promise<
         refresh();
         const intervalId = setInterval(() => {
             refresh();
-        }, 60_000);
+        }, 30_000);
 
         return () => {
             clearInterval(intervalId);

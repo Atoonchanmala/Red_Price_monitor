@@ -126,26 +126,27 @@ export const calculateOneHoon = (oneBaht: number): PriceResult => {
 
 // 1 ກຣາມ
 export const calculateOneGram = (
-  oneBaht: number,
-  diffSaleGoldToBar: number,
-  diffBuyGoldToBar: number
+  oneSaleBahtBar: number,
+  oneBuyBahtBar: number,
 ): PriceResult => {
-  const oneGram = (oneBaht - diffSaleGoldToBar) / 15 + 70000
-  const roundOneGram = Math.round(oneGram / 1000) * 1000
-  const diff = roundOneGram - oneGram
+  const oneGramSale = (oneSaleBahtBar / 15) + 70000
+  const oneGramBuy = (oneBuyBahtBar) / 15 
+  const roundOneGram = Math.round(oneGramSale / 1000) * 1000
+  const roundOneGramBuy = Math.floor(oneGramBuy / 1000) * 1000
+  const diff = roundOneGram - oneGramSale
   const premiumThreshold = 50000
 
   if (diff === 1000) {
     return {
-      SellPrice: oneGram + premiumThreshold,
-      BuyPrice: roundOneGram - diffBuyGoldToBar,
+      SellPrice: oneGramSale + premiumThreshold,
+      BuyPrice: roundOneGramBuy,
     }
   }
 
   if (diff >= 0) {
     const result = {
       SellPrice: roundOneGram + premiumThreshold,
-      BuyPrice: roundOneGram - diffBuyGoldToBar,
+      BuyPrice: roundOneGramBuy,
     }
     console.log('one gram result (diff >= 0):', result)
     return result
@@ -153,7 +154,7 @@ export const calculateOneGram = (
 
   const result = {
     SellPrice: roundOneGram + 1000 + premiumThreshold,
-    BuyPrice: roundOneGram - diffBuyGoldToBar,
+    BuyPrice: roundOneGramBuy,
   }
   console.log('one gram result (diff < 0):', result)
   return result
