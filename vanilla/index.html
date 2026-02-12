@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>KPV Gold Price Monitor</title>
+    
+    <!-- Preload critical assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Full viewport backdrop -->
+    
+    <!-- Full viewport watermark -->
+    <img src="assets/Watermark.png" alt="" class="viewport-watermark" onerror="this.style.display='none'">
+    
+    <div id="app">
+        <!-- Background -->
+        <!-- <div class="background"></div> -->
+        
+        <!-- Main Content -->
+        <div class="container">
+            <!-- Left Panel: Composition -->
+            <div class="panel composition-panel">
+                <img src="assets/jewelly.png" alt="ອຸປະກອນຄຳ" class="panel-icon jewelly-icon" onerror="this.style.visibility='hidden'">
+                
+                <div class="panel-content">
+                    <h2 class="panel-title">ຄຳຮູບປະພັນ</h2>
+                    
+                    <div class="table-header">
+                        <div class="header-spacer"></div>
+                        <div class="header-cell header-sell">ລາຄາຂາຍອອກ</div>
+                        <div class="header-cell header-buy">ລາຄາຊື້ຄືນ</div>
+                    </div>
+                    
+                    <div class="price-rows" id="composition-rows">
+                        <!-- Rows will be inserted here by JavaScript -->
+                        <div class="price-row">
+                            <div class="row-label">1 ບາດ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                        <div class="price-row">
+                            <div class="row-label">2 ສະຫຼຶງ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                        <div class="price-row">
+                            <div class="row-label">1 ສະຫຼຶງ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                        <div class="price-row">
+                            <div class="row-label">5 ຫຸນ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                        <div class="price-row">
+                            <div class="row-label">3 ຫຸນ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                        <div class="price-row">
+                            <div class="row-label">2 ຫຸນ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                        <div class="price-row">
+                            <div class="row-label">1 ຫຸນ</div>
+                            <div class="row-prices">
+                                <div class="price sell-price">—</div>
+                                <div class="price-divider"></div>
+                                <div class="price buy-price">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Gold Bars -->
+            <div class="panel goldbar-panel">
+                <!-- Top logos -->
+                <div class="logos">
+                    <img src="assets/pv.png" alt="PV" class="logo logo-pv" onerror="this.style.display='none'">
+                    <img src="assets/kpvlogo.png" alt="KPV" class="logo logo-kpv" onerror="this.style.display='none'">
+                    <img src="assets/easy gold.png" alt="Easy Gold" class="logo logo-easygold" onerror="this.style.display='none'">
+                </div>
+                
+                <!-- Gold Divider SVG -->
+                <div class="gold-divider-container top-divider">
+                    <svg class="gold-divider" viewBox="0 0 300 20" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="gold-gradient-1" x1="0" y1="10" x2="300" y2="10" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#4F1C00"/>
+                                <stop offset="12%" stop-color="#9C5305"/>
+                                <stop offset="32%" stop-color="#E0A526"/>
+                                <stop offset="50%" stop-color="#FFE9A1"/>
+                                <stop offset="68%" stop-color="#E0A526"/>
+                                <stop offset="88%" stop-color="#9C5305"/>
+                                <stop offset="100%" stop-color="#4F1C00"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M2 10C22 6 72 3 150 3C228 3 278 6 298 10C278 14 228 17 150 17C72 17 22 14 2 10Z" fill="url(#gold-gradient-1)"/>
+                    </svg>
+                </div>
+                
+                <!-- Header Image -->
+                <img src="assets/Layer_1 (1).png" alt="Gold Bar Header" class="header-image" onerror="this.style.visibility='hidden'">
+                
+                <!-- Date -->
+                <div class="date-display" id="date-display">—</div>
+                
+                <!-- Gold Divider SVG -->
+                <div class="gold-divider-container bottom-divider">
+                    <svg class="gold-divider" viewBox="0 0 300 20" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="gold-gradient-2" x1="0" y1="10" x2="300" y2="10" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#4F1C00"/>
+                                <stop offset="12%" stop-color="#9C5305"/>
+                                <stop offset="32%" stop-color="#E0A526"/>
+                                <stop offset="50%" stop-color="#FFE9A1"/>
+                                <stop offset="68%" stop-color="#E0A526"/>
+                                <stop offset="88%" stop-color="#9C5305"/>
+                                <stop offset="100%" stop-color="#4F1C00"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M2 10C22 6 72 3 150 3C228 3 278 6 298 10C278 14 228 17 150 17C72 17 22 14 2 10Z" fill="url(#gold-gradient-2)"/>
+                    </svg>
+                </div>
+                
+                <!-- Gold Bar Card -->
+                <div class="goldbar-card">
+                    <img src="assets/bar.png" alt="Gold Bar" class="bar-icon" onerror="this.style.visibility='hidden'">
+                    
+                    <div class="panel-content">
+                        <h2 class="panel-title">ຄຳແທ່ງ KPV GOLD</h2>
+                        
+                        <div class="table-header">
+                            <div class="header-spacer"></div>
+                            <div class="header-cell header-sell">ລາຄາຂາຍອອກ</div>
+                            <div class="header-cell header-buy">ລາຄາຊື້ຄືນ</div>
+                        </div>
+                        
+                        <div class="price-rows" id="goldbar-rows">
+                            <!-- Rows will be inserted here by JavaScript -->
+                            <div class="price-row">
+                                <div class="row-label">1 ບາດ</div>
+                                <div class="row-prices">
+                                    <div class="price sell-price">—</div>
+                                    <div class="price-divider"></div>
+                                    <div class="price buy-price">—</div>
+                                </div>
+                            </div>
+                            <div class="price-row">
+                                <div class="row-label">1 ກຣາມ</div>
+                                <div class="row-prices">
+                                    <div class="price sell-price">—</div>
+                                    <div class="price-divider"></div>
+                                    <div class="price buy-price">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error indicator -->
+        <div class="error-indicator" id="error-indicator" style="display: none;">
+            <span id="error-message">Error loading data</span>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="calculations.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

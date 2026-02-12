@@ -1,0 +1,397 @@
+/* ============================================
+   KPV Gold Price Monitor - Vanilla CSS
+   TV Browser Compatible Styles
+   ============================================ */
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Noto Sans Lao', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    /* Full viewport gradient background */
+    background: #5E0000;
+    background: radial-gradient(113.14% 60.22% at 50% 50%, #290F0D 0%, #910101 0%, #5E0000 100%);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Full viewport backdrop - covers entire screen regardless of app scaling */
+.viewport-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #5E0000;
+    background: radial-gradient(113.14% 60.22% at 50% 50%, #290F0D 0%, #910101 0%, #5E0000 100%);
+    z-index: -1;
+}
+
+/* App Container - Fixed 1920x1080 design */
+#app {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    overflow: hidden;
+    transform-origin: top left;
+    /* Hardware acceleration for TV browsers */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Background */
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(113.14% 60.22% at 50% 50%, #290F0D 0%, #910101 0%, #5E0000 100%);
+    z-index: 0;
+}
+
+/* Full viewport watermark - fills entire screen */
+.viewport-watermark {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    opacity: 0.9;
+    z-index: 0;
+    pointer-events: none;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Main Container */
+.container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+    height: 100%;
+    padding: 64px 60px 50px 60px;
+    color: white;
+}
+
+/* Panels */
+.panel {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    background: #FFF;
+    border-radius: 28px;
+    border: 4px solid rgba(236, 185, 30, 0.95);
+    padding: 32px;
+    overflow: visible;
+}
+
+.panel-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.panel-title {
+    text-align: center;
+    font-size: 48px;
+    font-weight: 700;
+    color: #2B0F00;
+    flex-shrink: 0;
+}
+
+/* Panel Icons */
+.panel-icon {
+    position: absolute;
+    width: 190px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    z-index: 2;
+}
+
+.jewelly-icon {
+    top: -55px;
+    left: 30px;
+}
+
+.bar-icon {
+    position: absolute;
+    top: -38px;
+    left: 23px;
+    width: 198px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    z-index: 2;
+}
+
+/* Gold Bar Panel Specific Layout */
+.goldbar-panel {
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* Logos */
+.logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    flex-shrink: 0;
+    margin-top: -32px;
+}
+
+.logo {
+    object-fit: contain;
+}
+
+.logo-pv {
+    width: 190px;
+}
+
+.logo-kpv {
+    width: 210px;
+}
+
+.logo-easygold {
+    width: 160px;
+}
+
+/* Gold Divider */
+.gold-divider-container {
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.gold-divider {
+    width: 500px;
+    height: 4px;
+}
+
+.top-divider {
+    margin-top: 64px;
+}
+
+.bottom-divider {
+    margin-top: 12px;
+}
+
+/* Header Image */
+.header-image {
+    display: block;
+    max-height: 130px;
+    object-fit: contain;
+    margin: 12px auto;
+    flex-shrink: 0;
+}
+
+/* Date Display */
+.date-display {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: white;
+    flex-shrink: 0;
+    margin: 12px 0;
+}
+
+/* Gold Bar Card */
+.goldbar-card {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: #FFF;
+    border-radius: 28px;
+    border: 4px solid rgba(236, 185, 30, 0.95);
+    padding: 32px;
+    margin-top: 106px;
+    overflow: visible;
+}
+
+/* Table Header */
+.table-header {
+    display: flex;
+    justify-content: flex-start;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Header spacer - matches row-label width to align columns */
+.header-spacer {
+    min-width: 15%;
+    padding: 8px 16px;
+  
+}
+
+.header-cell {
+    flex: 1;
+    padding: 8px 16px;
+    background: linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%);
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.header-sell {
+    /* Same width as header-buy (flex: 1) */
+}
+
+.header-buy {
+    /* Same width as header-sell (flex: 1) */
+}
+
+/* Price Rows */
+.price-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+.price-row {
+    display: flex;
+    flex-direction: row;
+    border-radius: 12px 0 0 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    background: linear-gradient(90deg, rgba(150, 26, 30, 0.15) 0%, rgba(188, 123, 23, 0.12) 100%);
+    flex-shrink: 0;
+}
+
+.row-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 15%;
+    background: linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%);
+    color: white;
+    padding: 12px 16px;
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.row-prices {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: stretch;
+    background: linear-gradient(90deg, #B4812C 0%, #ECB82D 100%);
+}
+
+.price {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 36px;
+    font-weight: 800;
+    color: #000000;
+    text-align: center;
+}
+
+.price-divider {
+    width: 4px;
+    background: #FFF;
+}
+
+/* Error Indicator */
+.error-indicator {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+/* Loading State */
+.loading .price {
+    opacity: 0.7;
+}
+
+/* ============================================
+   TV Browser Compatibility Fixes
+   ============================================ */
+
+/* Force hardware acceleration on all elements */
+.panel,
+.goldbar-card,
+.price-row,
+.logos,
+.header-image {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Ensure text rendering on TV browsers */
+.panel-title,
+.price,
+.row-label,
+.header-cell,
+.date-display {
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Fallback for older gradient syntax */
+.header-cell{
+    background: #961A1E; /* Fallback solid color */
+    background: -webkit-linear-gradient(left, #961A1E 0%, #5C0C0D 100%);
+    background: linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%);
+}
+
+.row-prices {
+    background: #B4812C; /* Fallback solid color */
+    background: -webkit-linear-gradient(left, #B4812C 0%, #ECB82D 100%);
+    background: linear-gradient(90deg, #B4812C 0%, #ECB82D 100%);
+}
+
+.row-label {
+    background: #961A1E; /* Fallback solid color */
+    background: -webkit-linear-gradient(left, #961A1E 0%, #5C0C0D 100%);
+    background: linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%);
+}
+
+.background,
+.viewport-backdrop {
+    background: #5E0000; /* Fallback solid color */
+    background: -webkit-radial-gradient(center, #290F0D 0%, #910101 0%, #5E0000 100%);
+    background: radial-gradient(113.14% 60.22% at 50% 50%, #290F0D 0%, #910101 0%, #5E0000 100%);
+}
+
+/* Ensure visibility */
+.container,
+.panel,
+.goldbar-card,
+.panel-content {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
