@@ -1,19 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html,
 body {
-  font-family: 'Noto Sans Lao', sans-serif;
+  font-family: 'Noto Sans Lao', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
   margin: 0;
   padding: 0;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: url('./assets/Watermark.png') center/cover no-repeat, radial-gradient(113.14% 60.22%, #290F0D 0%, #910101 0%, #5E0000 130%);
+  /* Simplified background for TV browser performance */
+  background: #5E0000;
   position: relative;
+  /* Force GPU acceleration */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* ມື້ອື່ນໄປລອງຕົວຈິງ ອີກເທື່ອຫນື່ງ*/

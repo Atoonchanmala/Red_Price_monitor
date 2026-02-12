@@ -3,4 +3,10 @@
   height: 1080px;
   transform-origin: top left;
   overflow: hidden;
+  /* Hardware acceleration for TV browsers */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }

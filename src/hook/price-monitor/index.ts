@@ -134,11 +134,13 @@ export function usePriceMonitor(): PriceMonitorState & { refresh: () => Promise<
                 error: null,
             });
         } catch (error) {
-            setState({
-                data: null,
+            console.error('Error fetching price data:', error);
+            // Keep previous data on error to avoid blank screen
+            setState((prev) => ({
+                data: prev.data, // Preserve previous data
                 isLoading: false,
                 error: error instanceof Error ? error.message : 'error',
-            });
+            }));
         };
     }, []);
 

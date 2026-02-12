@@ -18,7 +18,8 @@ const GoldbarPage: React.FC<GoldbarPageProps> = ({ rows, lastUpdated }) => {
     buy: formatPrice(row.buy),
   }))
 
-  const rowsToRender = dynamicRows && dynamicRows.length > 0 ? dynamicRows : GOLD_BAR_FALLBACK_ROWS
+  // Ensure we always have data to display
+  const rowsToRender = (dynamicRows && dynamicRows.length > 0) ? dynamicRows : GOLD_BAR_FALLBACK_ROWS
   const formattedDate = formatDisplayDate(lastUpdated)
 
   return (
@@ -26,6 +27,10 @@ const GoldbarPage: React.FC<GoldbarPageProps> = ({ rows, lastUpdated }) => {
       direction="column"
       flex={1}
       h="100%"
+      style={{
+        willChange: 'contents',
+        transform: 'translateZ(0)'
+      }}
     >
       <Flex
         justify="center"
@@ -34,14 +39,42 @@ const GoldbarPage: React.FC<GoldbarPageProps> = ({ rows, lastUpdated }) => {
         gap={20}
         mt={-8}
       >
-        <Image src={iconPv} alt="PV" width="190px" objectFit="contain" />
-        <Image src={iconKpv} alt="KPV" width="210px" objectFit="contain" />
-        <Image src={iconEasyGold} alt="Easy Gold" width="160px" objectFit="contain" />
+        <Image 
+          src={iconPv} 
+          alt="PV" 
+          width="190px" 
+          objectFit="contain" 
+          loading="eager"
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
+        <Image 
+          src={iconKpv} 
+          alt="KPV" 
+          width="210px" 
+          objectFit="contain" 
+          loading="eager"
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
+        <Image 
+          src={iconEasyGold} 
+          alt="Easy Gold" 
+          width="160px" 
+          objectFit="contain" 
+          loading="eager"
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
       </Flex>
 
       <Flex direction="column" align="center" gap={3} flexShrink={0} mt={16}>
         <GoldDivider width="500px"/>
-        <Image src={HeaderImage} alt="gold bar" maxH="130px" objectFit="contain"/>
+        <Image 
+          src={HeaderImage} 
+          alt="gold bar" 
+          maxH="130px" 
+          objectFit="contain"
+          loading="eager"
+          onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+        />
         <Text
           fontSize="42px"
           fontWeight="700"
@@ -68,11 +101,14 @@ const GoldbarPage: React.FC<GoldbarPageProps> = ({ rows, lastUpdated }) => {
           src={bar}
           alt="gold bar"
           position="absolute"
-          top="-50px"
+          top="-40px"
           left="5px"
           width="190px"
-          filter="drop-shadow(0 16px 24px rgba(0,0,0,0.25))"
+          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.3))"
           zIndex={2}
+          loading="eager"
+          onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+          style={{ willChange: 'transform' }}
         />
         <Flex
           direction="column" position="relative" zIndex={1} gap={5} h="100%"
@@ -98,19 +134,19 @@ const GoldbarPage: React.FC<GoldbarPageProps> = ({ rows, lastUpdated }) => {
               fontWeight="700"
               textAlign="center"
             >
-              ລາຄາຂາຍ
+              ລາຄາຂາຍອອກ
             </Box>
             <Box
               px={4}
               py={2}
-              minW="45%"
+              minW="44.4%"
               bg="linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%)"
               color="white"
               fontSize="32px"
               fontWeight="700"
               textAlign="center"
             >
-              ລາຄາຊື້
+              ລາຄາຊື້ຄືນ
             </Box>
           </Flex>
 

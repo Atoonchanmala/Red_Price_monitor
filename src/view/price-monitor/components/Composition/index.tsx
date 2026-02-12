@@ -12,7 +12,9 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
         buy: formatPrice(row.buy),
     }));
 
-    const rowsToRender = dynamicRows && dynamicRows.length > 0 ? dynamicRows : COMPOSITION_FALLBACK_ROWS;
+    // Ensure we always have data to display
+    const rowsToRender = (dynamicRows && dynamicRows.length > 0) ? dynamicRows : COMPOSITION_FALLBACK_ROWS;
+    
     return (
         <Box
             position="relative"
@@ -25,6 +27,10 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
             px={8}
             py={8}
             overflow="visible"
+            style={{
+                willChange: 'contents',
+                transform: 'translateZ(0)'
+            }}
         >
             <Image
                 src={jewelly}
@@ -33,8 +39,11 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
                 top="-70px"
                 left="30px"
                 width="190px"
-                filter="drop-shadow(0 16px 24px rgba(0,0,0,0.25))"
+                filter="drop-shadow(0 4px 8px rgba(0,0,0,0.3))"
                 zIndex={2}
+                loading="eager"
+                onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+                style={{ willChange: 'transform' }}
             />
 
             <Box
@@ -56,24 +65,24 @@ const CompositionPage: React.FC<CompositionPageProps> = ({ rows }) => {
                         py={2}
                         bg="linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%)"
                         color="white"
-                        minW="55%"
+                        minW="55.2%"
                         fontSize="32px"
                         fontWeight="700"
                         textAlign="center"
                     >
-                        ລາຄາຂາຍ
+                        ລາຄາຂາຍອອກ
                     </Box>
                     <Box
                         px={4}
                         py={2}
-                        minW="45%"
+                        minW="44.1%"
                         bg="linear-gradient(90deg, #961A1E 0%, #5C0C0D 100%)"
                         color="white"
                         fontSize="32px"
                         fontWeight="700"
                         textAlign="center"
                     >
-                        ລາຄາຊື້
+                        ລາຄາຊື້ຄືນ
                     </Box>
                 </Flex>
 
