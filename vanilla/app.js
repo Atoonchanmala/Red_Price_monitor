@@ -5,9 +5,9 @@
 
 (function() {
     'use strict';
-    
-    // ============================================
-    // Helper Functions
+
+    // Track in-flight XHRs so they can be aborted on the next refresh cycle
+    var activeXHRs = [];
     // ============================================
     
     /**
@@ -107,6 +107,10 @@
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
+                if (xhr.status === 0) {
+                    // Request was aborted — do not invoke callback
+                    return;
+                }
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         var data = JSON.parse(xhr.responseText);
@@ -125,6 +129,7 @@
         };
         
         xhr.send();
+        return xhr;
     }
     
     // ============================================
@@ -150,39 +155,46 @@
     }
     
     /**
+     * Update price rows in-place to avoid DOM churn and GPU layer reallocation.
+     * Falls back to full recreate only if row count has changed.
+     */
+    function updateRows(containerId, rows) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+
+        var existing = container.querySelectorAll('.price-row');
+
+        if (existing.length === rows.length) {
+            // Update text content in-place — no DOM nodes created or destroyed
+            for (var i = 0; i < rows.length; i++) {
+                var label = existing[i].querySelector('.row-label');
+                var sell = existing[i].querySelector('.sell-price');
+                var buy = existing[i].querySelector('.buy-price');
+                if (label) label.textContent = rows[i].label;
+                if (sell) sell.textContent = rows[i].sell;
+                if (buy) buy.textContent = rows[i].buy;
+            }
+        } else {
+            // Fallback: recreate rows if count differs
+            container.innerHTML = '';
+            for (var j = 0; j < rows.length; j++) {
+                container.appendChild(createPriceRow(rows[j].label, rows[j].sell, rows[j].buy));
+            }
+        }
+    }
+
+    /**
      * Update composition rows in the DOM
      */
     function updateCompositionRows(rows) {
-        var container = document.getElementById('composition-rows');
-        if (!container) return;
-        
-        // Clear existing rows
-        container.innerHTML = '';
-        
-        // Add new rows
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            var element = createPriceRow(row.label, row.sell, row.buy);
-            container.appendChild(element);
-        }
+        updateRows('composition-rows', rows);
     }
-    
+
     /**
      * Update gold bar rows in the DOM
      */
     function updateGoldbarRows(rows) {
-        var container = document.getElementById('goldbar-rows');
-        if (!container) return;
-        
-        // Clear existing rows
-        container.innerHTML = '';
-        
-        // Add new rows
-        for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            var element = createPriceRow(row.label, row.sell, row.buy);
-            container.appendChild(element);
-        }
+        updateRows('goldbar-rows', rows);
     }
     
     /**
@@ -342,25 +354,32 @@
      * Fetch price data from both APIs
      */
     function fetchPriceData() {
+        // Abort any in-flight requests from the previous cycle
+        for (var i = 0; i < activeXHRs.length; i++) {
+            if (activeXHRs[i]) activeXHRs[i].abort();
+        }
+        activeXHRs = [];
+
         setLoading(true);
-        
+
         var v1Url = CONFIG.API_BASE_URL + CONFIG.API_V1_PATH;
         var v2Url = CONFIG.API_BASE_URL + CONFIG.API_V2_PATH;
-        
+
         var v1Data = null;
         var v2Data = null;
         var completed = 0;
         var hasError = false;
-        
+
         function checkComplete() {
             completed++;
             if (completed === 2) {
+                activeXHRs = [];
                 setLoading(false);
-                
+
                 if (hasError) {
                     return;
                 }
-                
+
                 try {
                     processData(v1Data, v2Data);
                 } catch (e) {
@@ -369,9 +388,9 @@
                 }
             }
         }
-        
+
         // Fetch V1 data
-        fetchJSON(v1Url, function(err, data) {
+        activeXHRs.push(fetchJSON(v1Url, function(err, data) {
             if (err) {
                 console.error('Error fetching V1:', err);
                 hasError = true;
@@ -380,10 +399,10 @@
                 v1Data = data;
             }
             checkComplete();
-        });
-        
+        }));
+
         // Fetch V2 data
-        fetchJSON(v2Url, function(err, data) {
+        activeXHRs.push(fetchJSON(v2Url, function(err, data) {
             if (err) {
                 console.error('Error fetching V2:', err);
                 hasError = true;
@@ -392,7 +411,7 @@
                 v2Data = data;
             }
             checkComplete();
-        });
+        }));
     }
     
     // ============================================
@@ -400,24 +419,104 @@
     // ============================================
     
     /**
-     * Scale the app to fit the viewport
+     * Reliably detect the visible viewport size across TV browsers.
+     * Sources are tried in priority order; each is validated before use.
+     * screen.* values are divided by devicePixelRatio to convert to CSS pixels.
+     */
+    function getViewportDimensions() {
+        var MIN = 320; // sanity floor — any smaller value is a browser bug
+
+        // 1. visualViewport: most accurate, skips browser chrome/scrollbars
+        //    Available on WebOS 6+, Tizen 5+, Android TV Chromium 68+
+        if (window.visualViewport &&
+            window.visualViewport.width >= MIN &&
+            window.visualViewport.height >= MIN) {
+            return {
+                w: Math.round(window.visualViewport.width),
+                h: Math.round(window.visualViewport.height)
+            };
+        }
+
+        // 2. window.inner*: CSS pixels, reliable on modern browsers
+        var iw = window.innerWidth || 0;
+        var ih = window.innerHeight || 0;
+        if (iw >= MIN && ih >= MIN) {
+            return { w: iw, h: ih };
+        }
+
+        // 3. documentElement.client*: fallback for older WebKit TV browsers
+        var cw = document.documentElement ? (document.documentElement.clientWidth || 0) : 0;
+        var ch = document.documentElement ? (document.documentElement.clientHeight || 0) : 0;
+        if (cw >= MIN && ch >= MIN) {
+            return { w: cw, h: ch };
+        }
+
+        // 4. document.body.client*: some TV browsers report here when others fail
+        var bw = document.body ? (document.body.clientWidth || 0) : 0;
+        var bh = document.body ? (document.body.clientHeight || 0) : 0;
+        if (bw >= MIN && bh >= MIN) {
+            return { w: bw, h: bh };
+        }
+
+        // 5. screen.*: last resort — divide by DPR to convert physical → CSS pixels
+        var dpr = window.devicePixelRatio || 1;
+        var sw = Math.round((screen.width || CONFIG.DESIGN_WIDTH) / dpr);
+        var sh = Math.round((screen.height || CONFIG.DESIGN_HEIGHT) / dpr);
+        return { w: sw, h: sh };
+    }
+
+    /**
+     * Scale the app to fit the viewport.
+     * Accounts for TV overscan and falls back to CSS zoom
+     * on browsers where CSS transforms fail silently.
      */
     function scaleToFit() {
         var app = document.getElementById('app');
         if (!app) return;
-        
+
+        var vp = getViewportDimensions();
+
+        // Shrink effective viewport by overscan percentage so content
+        // stays inside the TV-safe zone (edges are often cropped).
+        var overscan = (CONFIG.TV_OVERSCAN_PERCENT || 0) / 100;
+        var safeW = vp.w * (1 - overscan);
+        var safeH = vp.h * (1 - overscan);
+
         var scale = Math.min(
-            window.innerWidth / CONFIG.DESIGN_WIDTH,
-            window.innerHeight / CONFIG.DESIGN_HEIGHT
+            safeW / CONFIG.DESIGN_WIDTH,
+            safeH / CONFIG.DESIGN_HEIGHT
         );
-        
-        app.style.transform = 'scale(' + scale + ')';
-        app.style.transformOrigin = 'top left';
-        app.style.marginLeft = ((window.innerWidth - CONFIG.DESIGN_WIDTH * scale) / 2) + 'px';
-        app.style.marginTop = ((window.innerHeight - CONFIG.DESIGN_HEIGHT * scale) / 2) + 'px';
-        
+
+        // Center within the full viewport (not the safe area)
+        var offsetX = (vp.w - CONFIG.DESIGN_WIDTH * scale) / 2;
+        var offsetY = (vp.h - CONFIG.DESIGN_HEIGHT * scale) / 2;
+
+        // Prefer CSS transform; fall back to zoom for very old TV WebKit.
+        var hasTransform = ('transform' in app.style) || ('webkitTransform' in app.style);
+
+        if (hasTransform) {
+            var t = 'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + scale + ') translateZ(0)';
+            app.style.webkitTransform = t;
+            app.style.transform = t;
+            app.style.webkitTransformOrigin = 'top left';
+            app.style.transformOrigin = 'top left';
+        } else if ('zoom' in app.style) {
+            // zoom changes layout size — position via margin instead
+            app.style.zoom = scale;
+            app.style.marginLeft = offsetX + 'px';
+            app.style.marginTop = offsetY + 'px';
+        }
+
+        // Reset any previously-set left/top so only transform controls position
+        app.style.left = '0';
+        app.style.top = '0';
+
         // Force repaint for TV browsers
         void app.offsetHeight;
+
+        if (CONFIG.DEBUG) {
+            updateDebugOverlay(vp, scale, overscan);
+        }
     }
     
     // ============================================
@@ -438,6 +537,35 @@
         }
     }
     
+    /**
+     * Debug overlay — shows viewport info on screen when CONFIG.DEBUG = true.
+     * Useful for diagnosing scaling issues on TVs you can't inspect remotely.
+     */
+    function updateDebugOverlay(vp, scale, overscan) {
+        var overlay = document.getElementById('debug-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'debug-overlay';
+            overlay.style.cssText =
+                'position:fixed;bottom:0;left:0;background:rgba(0,0,0,0.85);' +
+                'color:#0f0;font:14px monospace;padding:10px 14px;z-index:99999;' +
+                'max-width:100%;word-break:break-all;pointer-events:none;';
+            document.body.appendChild(overlay);
+        }
+        var iw = window.innerWidth || 0;
+        var ih = window.innerHeight || 0;
+        var cw = document.documentElement ? (document.documentElement.clientWidth || 0) : 0;
+        var ch = document.documentElement ? (document.documentElement.clientHeight || 0) : 0;
+        overlay.innerHTML =
+            'VP: ' + vp.w + '×' + vp.h +
+            ' | Scale: ' + scale.toFixed(4) +
+            ' | Overscan: ' + (overscan * 100).toFixed(1) + '%' +
+            '<br>innerW/H: ' + iw + '/' + ih +
+            ' | clientW/H: ' + cw + '/' + ch +
+            ' | screen: ' + (screen.width || 0) + '×' + (screen.height || 0) +
+            ' | DPR: ' + (window.devicePixelRatio || 1);
+    }
+
     /**
      * Initialize TV browser fixes
      */
@@ -466,10 +594,59 @@
     function init() {
         if (CONFIG.DEBUG) console.log('Initializing KPV Gold Price Monitor...');
         
-        // Scale to fit viewport
+        // Scale to fit viewport — call immediately, then again after one frame
+        // and after 200ms to catch TV browsers that apply the viewport meta late
         scaleToFit();
+        if (window.requestAnimationFrame) {
+            requestAnimationFrame(scaleToFit);
+        }
+        setTimeout(scaleToFit, 200);
         window.addEventListener('resize', scaleToFit);
-        
+        // visualViewport.onresize fires reliably on browser zoom changes
+        // (window.resize may not fire on zoom in some TV/mobile browsers)
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', scaleToFit);
+        }
+
+        // -- Aggressive polling --
+        // Some TV browsers (especially on 1080p sets) don't fire resize
+        // and may report stale viewport dimensions during early boot.
+        // Poll every 250 ms for up to 5 s; stop early once the viewport
+        // dimensions stabilise for 3 consecutive checks.
+        var pollInterval = CONFIG.SCALE_POLL_INTERVAL || 250;
+        var pollDuration = CONFIG.SCALE_POLL_DURATION || 5000;
+        var maxPolls = Math.ceil(pollDuration / pollInterval);
+        var pollCount = 0;
+        var stableCount = 0;
+        var lastVP = { w: 0, h: 0 };
+
+        var pollTimer = setInterval(function() {
+            pollCount++;
+            var vp = getViewportDimensions();
+
+            if (vp.w !== lastVP.w || vp.h !== lastVP.h) {
+                lastVP = vp;
+                stableCount = 0;
+                scaleToFit();
+            } else {
+                stableCount++;
+            }
+
+            // Stop polling once viewport is stable or time is up
+            if (stableCount >= 3 || pollCount >= maxPolls) {
+                clearInterval(pollTimer);
+                if (CONFIG.DEBUG) {
+                    console.log('Viewport poll done — stable at ' + lastVP.w + 'x' + lastVP.h);
+                }
+            }
+        }, pollInterval);
+
+        // Re-scale on full page load (images, fonts, etc.)
+        window.addEventListener('load', function() {
+            scaleToFit();
+            setTimeout(scaleToFit, 100);
+        });
+
         // Apply TV browser fixes
         initTVFixes();
         
