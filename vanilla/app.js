@@ -6,6 +6,24 @@
 (function() {
     'use strict';
 
+    // Safe console wrapper — some TV browsers lack console entirely
+    function safeLog() {
+        if (typeof console !== 'undefined' && console.log) {
+            try { console.log.apply(console, arguments); } catch(e) {}
+        }
+    }
+    function safeError() {
+        if (typeof console !== 'undefined' && console.error) {
+            try { console.error.apply(console, arguments); } catch(e) {}
+        }
+    }
+
+    // Global error handler — prevents TV browsers from crashing on uncaught errors
+    window.onerror = function(msg, url, line, col, err) {
+        safeError('Global error:', msg, 'at', url, line);
+        return true; // Suppress the error — don't let the TV kill the page
+    };
+
     // Track in-flight XHRs so they can be aborted on the next refresh cycle
     var activeXHRs = [];
     // ============================================
@@ -59,8 +77,10 @@
             return '—';
         }
         
-        var dayStr = String(parsedDate.getDate()).padStart(2, '0');
-        var monthStr = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        var day = parsedDate.getDate();
+        var month = parsedDate.getMonth() + 1;
+        var dayStr = (day < 10 ? '0' : '') + day;
+        var monthStr = (month < 10 ? '0' : '') + month;
         var yearStr = String(parsedDate.getFullYear());
         
         return dayStr + '.' + monthStr + '.' + yearStr;
@@ -383,7 +403,7 @@
                 try {
                     processData(v1Data, v2Data);
                 } catch (e) {
-                    console.error('Error processing data:', e);
+                    safeError('Error processing data:', e);
                     showError(e.message);
                 }
             }
@@ -392,7 +412,7 @@
         // Fetch V1 data
         activeXHRs.push(fetchJSON(v1Url, function(err, data) {
             if (err) {
-                console.error('Error fetching V1:', err);
+                safeError('Error fetching V1:', err);
                 hasError = true;
                 showError('Failed to fetch price data');
             } else {
@@ -404,7 +424,7 @@
         // Fetch V2 data
         activeXHRs.push(fetchJSON(v2Url, function(err, data) {
             if (err) {
-                console.error('Error fetching V2:', err);
+                safeError('Error fetching V2:', err);
                 hasError = true;
                 showError('Failed to fetch price data');
             } else {
@@ -466,11 +486,25 @@
     }
 
     /**
+     * Debounced scaleToFit — coalesces rapid resize/poll events into a single
+     * GPU recomposition. Prevents TV browsers from OOM-crashing when many
+     * transform updates fire in quick succession.
+     */
+    var _scaleTimer = null;
+    function scaleToFitDebounced() {
+        if (_scaleTimer) return;            // already scheduled
+        _scaleTimer = setTimeout(function() {
+            _scaleTimer = null;
+            _scaleToFitNow();
+        }, 100);
+    }
+
+    /**
      * Scale the app to fit the viewport.
      * Accounts for TV overscan and falls back to CSS zoom
      * on browsers where CSS transforms fail silently.
      */
-    function scaleToFit() {
+    function _scaleToFitNow() {
         var app = document.getElementById('app');
         if (!app) return;
 
@@ -570,16 +604,14 @@
      * Initialize TV browser fixes
      */
     function initTVFixes() {
-        // Force multiple repaints
-        setTimeout(forceRepaint, 100);
+        // Single deferred repaint — avoid hammering the GPU on init
         setTimeout(forceRepaint, 500);
-        setTimeout(forceRepaint, 1000);
         
         // Handle visibility change (TV wake from sleep)
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 forceRepaint();
-                scaleToFit();
+                scaleToFitDebounced();
             }
         });
     }
@@ -592,29 +624,21 @@
      * Initialize the application
      */
     function init() {
-        if (CONFIG.DEBUG) console.log('Initializing KPV Gold Price Monitor...');
+        if (CONFIG.DEBUG) safeLog('Initializing KPV Gold Price Monitor...');
         
-        // Scale to fit viewport — call immediately, then again after one frame
-        // and after 200ms to catch TV browsers that apply the viewport meta late
-        scaleToFit();
-        if (window.requestAnimationFrame) {
-            requestAnimationFrame(scaleToFit);
-        }
-        setTimeout(scaleToFit, 200);
-        window.addEventListener('resize', scaleToFit);
-        // visualViewport.onresize fires reliably on browser zoom changes
-        // (window.resize may not fire on zoom in some TV/mobile browsers)
+        // Scale to fit viewport — call once immediately, then debounced for events
+        _scaleToFitNow();
+        setTimeout(function() { _scaleToFitNow(); }, 300);
+        window.addEventListener('resize', scaleToFitDebounced);
         if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', scaleToFit);
+            window.visualViewport.addEventListener('resize', scaleToFitDebounced);
         }
 
-        // -- Aggressive polling --
-        // Some TV browsers (especially on 1080p sets) don't fire resize
-        // and may report stale viewport dimensions during early boot.
-        // Poll every 250 ms for up to 5 s; stop early once the viewport
-        // dimensions stabilise for 3 consecutive checks.
-        var pollInterval = CONFIG.SCALE_POLL_INTERVAL || 250;
-        var pollDuration = CONFIG.SCALE_POLL_DURATION || 5000;
+        // -- Gentle polling --
+        // Some TV browsers report stale viewport dimensions during boot.
+        // Poll every 500 ms for up to 3 s; stop once stable for 2 checks.
+        var pollInterval = CONFIG.SCALE_POLL_INTERVAL || 500;
+        var pollDuration = CONFIG.SCALE_POLL_DURATION || 3000;
         var maxPolls = Math.ceil(pollDuration / pollInterval);
         var pollCount = 0;
         var stableCount = 0;
@@ -627,24 +651,22 @@
             if (vp.w !== lastVP.w || vp.h !== lastVP.h) {
                 lastVP = vp;
                 stableCount = 0;
-                scaleToFit();
+                scaleToFitDebounced();
             } else {
                 stableCount++;
             }
 
-            // Stop polling once viewport is stable or time is up
-            if (stableCount >= 3 || pollCount >= maxPolls) {
+            if (stableCount >= 2 || pollCount >= maxPolls) {
                 clearInterval(pollTimer);
                 if (CONFIG.DEBUG) {
-                    console.log('Viewport poll done — stable at ' + lastVP.w + 'x' + lastVP.h);
+                    safeLog('Viewport poll done — stable at ' + lastVP.w + 'x' + lastVP.h);
                 }
             }
         }, pollInterval);
 
         // Re-scale on full page load (images, fonts, etc.)
         window.addEventListener('load', function() {
-            scaleToFit();
-            setTimeout(scaleToFit, 100);
+            scaleToFitDebounced();
         });
 
         // Apply TV browser fixes
@@ -656,7 +678,7 @@
         // Set up auto-refresh
         setInterval(fetchPriceData, CONFIG.REFRESH_INTERVAL);
         
-        if (CONFIG.DEBUG) console.log('Initialization complete');
+        if (CONFIG.DEBUG) safeLog('Initialization complete');
     }
     
     // ============================================
