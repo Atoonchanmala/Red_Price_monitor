@@ -284,12 +284,6 @@
             throw new Error('Error fetching price data from API');
         }
         
-        // Calculate gold bar prices
-        var oneGramPrice = Calculations.calculateOneGram(
-            latestV1.one_baht_sale_price_gold_bar,
-            latestV1.one_baht_buy_price_gold_bar
-        );
-        
         var goldbarRows = [
             {
                 label: GOLDBAR_LABELS['one_baht'],
@@ -298,54 +292,46 @@
             },
             {
                 label: GOLDBAR_LABELS['one_gram'],
-                sell: formatPrice(oneGramPrice.SellPrice),
-                buy: formatPrice(oneGramPrice.BuyPrice)
+                sell: formatPrice(latestV1.one_gram_sale_price),
+                buy: formatPrice(latestV1.one_gram_buy_price)
             }
         ];
-        
-        // Calculate composition prices
-        var oneSalungPrice = Calculations.calculateOneSalung(latestV1.one_baht_sale_price);
-        var twoSalungPrice = Calculations.calculateTwoSalung(latestV1.one_baht_sale_price);
-        var fiveHoonPrice = Calculations.calculateFiveHoon(latestV1.one_baht_sale_price);
-        var threeHoonPrice = Calculations.calculateThreeHoon(latestV1.one_baht_sale_price);
-        var twoHoonPrice = Calculations.calculateTwoHoon(latestV1.one_baht_sale_price);
-        var oneHoonPrice = Calculations.calculateOneHoon(latestV1.one_baht_sale_price);
         
         var compositionRows = [
             {
                 label: COMPOSITION_LABELS['one_baht'],
                 sell: formatPrice(latestV1.one_baht_sale_price),
-                buy: formatPrice(Calculations.calculateOneBahtBuy(latestV1.one_baht_sale_price))
+                buy: formatPrice(latestV1.one_baht_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['two_salung'],
-                sell: formatPrice(twoSalungPrice.SellPrice),
-                buy: formatPrice(twoSalungPrice.BuyPrice)
+                sell: formatPrice(latestV1.two_salung_sale_price),
+                buy: formatPrice(latestV1.two_salung_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['one_salung'],
-                sell: formatPrice(oneSalungPrice.SellPrice),
-                buy: formatPrice(oneSalungPrice.BuyPrice)
+                sell: formatPrice(latestV1.one_salung_sale_price),
+                buy: formatPrice(latestV1.one_salung_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['five_hun'],
-                sell: formatPrice(fiveHoonPrice.SellPrice),
-                buy: formatPrice(fiveHoonPrice.BuyPrice)
+                sell: formatPrice(latestV1.five_hun_sale_price),
+                buy: formatPrice(latestV1.five_hun_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['three_hun'],
-                sell: formatPrice(threeHoonPrice.SellPrice),
-                buy: formatPrice(threeHoonPrice.BuyPrice)
+                sell: formatPrice(latestV1.three_hun_sale_price),
+                buy: formatPrice(latestV1.three_hun_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['two_hun'],
-                sell: formatPrice(twoHoonPrice.SellPrice),
-                buy: formatPrice(twoHoonPrice.BuyPrice)
+                sell: formatPrice(latestV1.two_hun_sale_price),
+                buy: formatPrice(latestV1.two_hun_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['one_hun'],
-                sell: formatPrice(oneHoonPrice.SellPrice),
-                buy: formatPrice(oneHoonPrice.BuyPrice)
+                sell: formatPrice(latestV1.one_hun_sale_price),
+                buy: formatPrice(latestV1.one_hun_buy_price)
             }
         ];
         
