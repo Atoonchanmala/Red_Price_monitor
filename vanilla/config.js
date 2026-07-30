@@ -5,11 +5,11 @@
 
 var CONFIG = {
     // API Base URL - Change this to your API server
-    API_BASE_URL: 'https://prod-api.kpvgroup.com/price-and-comition-service',
+    // API_BASE_URL: 'https://prod-api.kpvgroup.com/price-and-comition-service',
     
-    // API Endpoints
-    API_V1_PATH: '/api/v1/price',
-    API_V2_PATH: '/api/v2/price/current',
+    API_BASE_URL: 'https://easygold-services.hamstag.com/price-and-comition-service',
+    // API Endpoint
+    API_PATH: '/api/v1/shop-price',
     
     // Refresh interval in milliseconds (30 seconds)
     REFRESH_INTERVAL: 30000,

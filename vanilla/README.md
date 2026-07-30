@@ -19,7 +19,6 @@ vanilla/
 ├── index.html      # Main HTML file
 ├── styles.css      # All styles (TV-optimized)
 ├── config.js       # Configuration (API URL, etc.)
-├── calculations.js # Price calculation logic
 ├── app.js          # Main application logic
 └── assets/         # Images
     ├── Watermark.png
@@ -152,41 +151,38 @@ var COMPOSITION_LABELS = {
 
 ### Adding New Price Rows
 
-1. Add calculation in `calculations.js`
-2. Add row in `app.js` processData function
-3. Add label in `config.js`
+1. Add the row in the `processData` function in `app.js`
+2. Add its label in `config.js`
 
 ## API Requirements
 
-The app expects two API endpoints:
+The app expects one API endpoint:
 
-### V1 API: `/api/v1/price`
+### Shop Price API: `/api/v1/shop-price`
 Returns:
 ```json
 {
-  "data": [
-    {
-      "one_baht_sale_price": 12345678,
-      "one_baht_sale_price_gold_bar": 12345678,
-      "one_baht_buy_price_gold_bar": 12345678,
-      "one_baht_sale_price_gold_bar_kpv": 12345678,
-      "one_baht_buy_price_gold_bar_kpv": 12345678,
-      "show_date_time": "2024-01-15T10:30:00Z",
-      "created_at": "2024-01-15T10:30:00Z"
-    }
-  ]
-}
-```
-
-### V2 API: `/api/v2/price/current`
-Returns:
-```json
-{
-  "data": [
-    {
-      "created_at": "2024-01-15T10:30:00Z"
-    }
-  ]
+  "data": {
+    "one_baht_sale_price": 46009000,
+    "one_baht_buy_price": 44813000,
+    "one_baht_sale_price_gold_bar": 45900000,
+    "one_baht_buy_price_gold_bar": 45370000,
+    "two_salung_sale_price": 23008000,
+    "two_salung_buy_price": 22364000,
+    "one_salung_sale_price": 11504000,
+    "one_salung_buy_price": 11182000,
+    "five_hun_sale_price": 5754000,
+    "five_hun_buy_price": 5545000,
+    "three_hun_sale_price": 3484000,
+    "three_hun_buy_price": 3275000,
+    "two_hun_sale_price": 2334000,
+    "two_hun_buy_price": 2125000,
+    "one_hun_sale_price": 1194000,
+    "one_hun_buy_price": 985000,
+    "one_gram_sale_price": 3180000,
+    "one_gram_buy_price": 3024000
+  },
+  "error": false
 }
 ```
 

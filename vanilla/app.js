@@ -87,37 +87,6 @@
     }
     
     /**
-     * Check if date is valid and recent
-     */
-    function isValidRecentDate(value) {
-        if (!value) {
-            return false;
-        }
-        var date = new Date(value);
-        return !isNaN(date.getTime()) && date.getFullYear() >= 2000;
-    }
-    
-    /**
-     * Pick latest item by created_at date
-     */
-    function pickLatestByDate(items) {
-        if (!items || !items.length) {
-            return null;
-        }
-        
-        return items.reduce(function(latest, current) {
-            if (!latest) {
-                return current;
-            }
-            
-            var latestTime = latest.created_at ? Date.parse(latest.created_at) : -Infinity;
-            var currentTime = current.created_at ? Date.parse(current.created_at) : -Infinity;
-            
-            return currentTime > latestTime ? current : latest;
-        }, null);
-    }
-    
-    /**
      * Simple XMLHttpRequest wrapper for TV browser compatibility
      */
     function fetchJSON(url, callback) {
@@ -276,79 +245,68 @@
     /**
      * Process API data and update display
      */
-    function processData(v1Data, v2Data) {
-        var latestV1 = pickLatestByDate(v1Data.data);
-        var latestV2 = pickLatestByDate(v2Data.data);
-        
-        if (!latestV1 || !latestV2) {
+    function processData(response) {
+        var priceData = response && response.data;
+
+        if (!priceData || response.error === true) {
             throw new Error('Error fetching price data from API');
         }
         
         var goldbarRows = [
             {
                 label: GOLDBAR_LABELS['one_baht'],
-                sell: formatPrice(latestV1.one_baht_sale_price_gold_bar_kpv || latestV1.one_baht_sale_price_gold_bar),
-                buy: formatPrice(latestV1.one_baht_buy_price_gold_bar_kpv || latestV1.one_baht_buy_price_gold_bar)
+                sell: formatPrice(priceData.one_baht_sale_price_gold_bar),
+                buy: formatPrice(priceData.one_baht_buy_price_gold_bar)
             },
             {
                 label: GOLDBAR_LABELS['one_gram'],
-                sell: formatPrice(latestV1.one_gram_sale_price),
-                buy: formatPrice(latestV1.one_gram_buy_price)
+                sell: formatPrice(priceData.one_gram_sale_price),
+                buy: formatPrice(priceData.one_gram_buy_price)
             }
         ];
         
         var compositionRows = [
             {
                 label: COMPOSITION_LABELS['one_baht'],
-                sell: formatPrice(latestV1.one_baht_sale_price),
-                buy: formatPrice(latestV1.one_baht_buy_price)
+                sell: formatPrice(priceData.one_baht_sale_price),
+                buy: formatPrice(priceData.one_baht_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['two_salung'],
-                sell: formatPrice(latestV1.two_salung_sale_price),
-                buy: formatPrice(latestV1.two_salung_buy_price)
+                sell: formatPrice(priceData.two_salung_sale_price),
+                buy: formatPrice(priceData.two_salung_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['one_salung'],
-                sell: formatPrice(latestV1.one_salung_sale_price),
-                buy: formatPrice(latestV1.one_salung_buy_price)
+                sell: formatPrice(priceData.one_salung_sale_price),
+                buy: formatPrice(priceData.one_salung_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['five_hun'],
-                sell: formatPrice(latestV1.five_hun_sale_price),
-                buy: formatPrice(latestV1.five_hun_buy_price)
+                sell: formatPrice(priceData.five_hun_sale_price),
+                buy: formatPrice(priceData.five_hun_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['three_hun'],
-                sell: formatPrice(latestV1.three_hun_sale_price),
-                buy: formatPrice(latestV1.three_hun_buy_price)
+                sell: formatPrice(priceData.three_hun_sale_price),
+                buy: formatPrice(priceData.three_hun_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['two_hun'],
-                sell: formatPrice(latestV1.two_hun_sale_price),
-                buy: formatPrice(latestV1.two_hun_buy_price)
+                sell: formatPrice(priceData.two_hun_sale_price),
+                buy: formatPrice(priceData.two_hun_buy_price)
             },
             {
                 label: COMPOSITION_LABELS['one_hun'],
-                sell: formatPrice(latestV1.one_hun_sale_price),
-                buy: formatPrice(latestV1.one_hun_buy_price)
+                sell: formatPrice(priceData.one_hun_sale_price),
+                buy: formatPrice(priceData.one_hun_buy_price)
             }
         ];
-        
-        // Determine show date
-        var showDateTime = '';
-        if (isValidRecentDate(latestV1.show_date_time)) {
-            showDateTime = latestV1.show_date_time;
-        } else if (isValidRecentDate(latestV2.created_at)) {
-            showDateTime = latestV2.created_at;
-        } else if (isValidRecentDate(latestV1.created_at)) {
-            showDateTime = latestV1.created_at;
-        }
         
         // Update DOM
         updateGoldbarRows(goldbarRows);
         updateCompositionRows(compositionRows);
-        updateDateDisplay(showDateTime);
+        updateDateDisplay(priceData.show_date_time || priceData.created_at || '');
         hideError();
     }
     
@@ -357,7 +315,7 @@
     // ============================================
     
     /**
-     * Fetch price data from both APIs
+     * Fetch price data from the shop-price API
      */
     function fetchPriceData() {
         // Abort any in-flight requests from the previous cycle
@@ -368,55 +326,24 @@
 
         setLoading(true);
 
-        var v1Url = CONFIG.API_BASE_URL + CONFIG.API_V1_PATH;
-        var v2Url = CONFIG.API_BASE_URL + CONFIG.API_V2_PATH;
+        var url = CONFIG.API_BASE_URL + CONFIG.API_PATH;
 
-        var v1Data = null;
-        var v2Data = null;
-        var completed = 0;
-        var hasError = false;
+        activeXHRs.push(fetchJSON(url, function(err, data) {
+            activeXHRs = [];
+            setLoading(false);
 
-        function checkComplete() {
-            completed++;
-            if (completed === 2) {
-                activeXHRs = [];
-                setLoading(false);
-
-                if (hasError) {
-                    return;
-                }
-
-                try {
-                    processData(v1Data, v2Data);
-                } catch (e) {
-                    safeError('Error processing data:', e);
-                    showError(e.message);
-                }
-            }
-        }
-
-        // Fetch V1 data
-        activeXHRs.push(fetchJSON(v1Url, function(err, data) {
             if (err) {
-                safeError('Error fetching V1:', err);
-                hasError = true;
+                safeError('Error fetching shop price:', err);
                 showError('Failed to fetch price data');
-            } else {
-                v1Data = data;
+                return;
             }
-            checkComplete();
-        }));
 
-        // Fetch V2 data
-        activeXHRs.push(fetchJSON(v2Url, function(err, data) {
-            if (err) {
-                safeError('Error fetching V2:', err);
-                hasError = true;
-                showError('Failed to fetch price data');
-            } else {
-                v2Data = data;
+            try {
+                processData(data);
+            } catch (e) {
+                safeError('Error processing data:', e);
+                showError(e.message);
             }
-            checkComplete();
         }));
     }
     
